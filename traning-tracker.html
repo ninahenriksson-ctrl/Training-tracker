@@ -1,0 +1,859 @@
+<!DOCTYPE html>
+<html lang="sv">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="theme-color" content="#0a0a0a">
+<title>Träning 2026</title>
+<link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;700;800&family=DM+Mono:wght@300;400;500&display=swap" rel="stylesheet">
+<style>
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+  :root {
+    --bg: #0a0a0a;
+    --surface: #141414;
+    --border: #222;
+    --green: #b8f5a0;
+    --green-dim: #3a5c30;
+    --red: #f5a0a0;
+    --red-dim: #5c3030;
+    --text: #f0f0f0;
+    --muted: #666;
+    --accent: #b8f5a0;
+  }
+
+  html, body {
+    height: 100%;
+    background: var(--bg);
+    color: var(--text);
+    font-family: 'DM Mono', monospace;
+    overflow: hidden;
+    -webkit-font-smoothing: antialiased;
+  }
+
+  body {
+    display: flex;
+    flex-direction: column;
+    min-height: 100dvh;
+    padding: env(safe-area-inset-top) env(safe-area-inset-right) env(safe-area-inset-bottom) env(safe-area-inset-left);
+  }
+
+  .app {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    padding: 24px 20px 20px;
+    gap: 16px;
+    max-width: 430px;
+    margin: 0 auto;
+    width: 100%;
+  }
+
+  /* HEADER */
+  .header {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+  }
+
+  .header-title {
+    font-family: 'Syne', sans-serif;
+    font-weight: 800;
+    font-size: 28px;
+    line-height: 1;
+    letter-spacing: -1px;
+  }
+
+  .header-year {
+    font-family: 'Syne', sans-serif;
+    font-weight: 400;
+    font-size: 13px;
+    color: var(--muted);
+    margin-top: 4px;
+    letter-spacing: 2px;
+  }
+
+  .week-badge {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    padding: 8px 12px;
+    text-align: right;
+  }
+
+  .week-label {
+    font-size: 10px;
+    color: var(--muted);
+    letter-spacing: 1px;
+    text-transform: uppercase;
+  }
+
+  .week-num {
+    font-family: 'Syne', sans-serif;
+    font-weight: 700;
+    font-size: 22px;
+    line-height: 1;
+  }
+
+  /* STATUS CARD — big hero element */
+  .status-card {
+    border-radius: 16px;
+    padding: 24px;
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    position: relative;
+    overflow: hidden;
+    transition: background 0.4s, border-color 0.4s;
+    border: 1px solid transparent;
+  }
+
+  .status-card.positive {
+    background: linear-gradient(135deg, #0f1f0c 0%, #162612 100%);
+    border-color: var(--green-dim);
+  }
+
+  .status-card.negative {
+    background: linear-gradient(135deg, #1f0c0c 0%, #261212 100%);
+    border-color: var(--red-dim);
+  }
+
+  .status-card.neutral {
+    background: var(--surface);
+    border-color: var(--border);
+  }
+
+  .status-label {
+    font-size: 11px;
+    letter-spacing: 2px;
+    text-transform: uppercase;
+    color: var(--muted);
+  }
+
+  .status-main {
+    font-family: 'Syne', sans-serif;
+    font-weight: 800;
+    font-size: 48px;
+    line-height: 1;
+    letter-spacing: -2px;
+    transition: color 0.4s;
+  }
+
+  .status-card.positive .status-main { color: var(--green); }
+  .status-card.negative .status-main { color: var(--red); }
+  .status-card.neutral .status-main { color: var(--text); }
+
+  .status-sub {
+    font-size: 13px;
+    color: var(--muted);
+    margin-top: 2px;
+  }
+
+  .status-card.positive .status-sub { color: #7cc466; }
+  .status-card.negative .status-sub { color: #c47c7c; }
+
+  /* GRID STATS */
+  .stats-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 12px;
+  }
+
+  .stat-box {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 14px;
+    padding: 18px 16px;
+  }
+
+  .stat-box-label {
+    font-size: 10px;
+    letter-spacing: 1.5px;
+    text-transform: uppercase;
+    color: var(--muted);
+    margin-bottom: 8px;
+  }
+
+  .stat-box-value {
+    font-family: 'Syne', sans-serif;
+    font-weight: 700;
+    font-size: 32px;
+    line-height: 1;
+    letter-spacing: -1px;
+  }
+
+  .stat-box-sub {
+    font-size: 11px;
+    color: var(--muted);
+    margin-top: 4px;
+  }
+
+  /* WEEK DOTS */
+  .week-section {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 14px;
+    padding: 18px 16px;
+  }
+
+  .week-section-label {
+    font-size: 10px;
+    letter-spacing: 1.5px;
+    text-transform: uppercase;
+    color: var(--muted);
+    margin-bottom: 14px;
+  }
+
+  .week-dots {
+    display: flex;
+    gap: 10px;
+    align-items: center;
+  }
+
+  .day-col {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 6px;
+    flex: 1;
+  }
+
+  .day-label {
+    font-size: 9px;
+    color: var(--muted);
+    letter-spacing: 0.5px;
+    text-transform: uppercase;
+  }
+
+  .day-dot {
+    width: 100%;
+    aspect-ratio: 1;
+    border-radius: 8px;
+    background: var(--border);
+    border: 1px solid var(--border);
+    transition: background 0.2s, border-color 0.2s;
+    max-width: 40px;
+  }
+
+  .day-dot.done {
+    background: var(--green);
+    border-color: var(--green);
+  }
+
+  .day-dot.today {
+    border-color: var(--muted);
+  }
+
+  /* LOG BUTTON */
+  .log-btn {
+    background: var(--green);
+    color: #0a0a0a;
+    border: none;
+    border-radius: 16px;
+    padding: 0;
+    height: 68px;
+    font-family: 'Syne', sans-serif;
+    font-weight: 800;
+    font-size: 18px;
+    letter-spacing: -0.5px;
+    cursor: pointer;
+    width: 100%;
+    position: relative;
+    overflow: hidden;
+    transition: transform 0.1s, opacity 0.1s;
+    -webkit-tap-highlight-color: transparent;
+  }
+
+  .log-btn:active {
+    transform: scale(0.97);
+    opacity: 0.9;
+  }
+
+  .log-btn .btn-inner {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 10px;
+    height: 100%;
+  }
+
+  .log-btn .btn-icon {
+    font-size: 22px;
+  }
+
+  /* UNDO */
+  .undo-bar {
+    display: none;
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    padding: 12px 16px;
+    font-size: 12px;
+    color: var(--muted);
+    align-items: center;
+    justify-content: space-between;
+  }
+
+  .undo-bar.visible {
+    display: flex;
+  }
+
+  .undo-btn {
+    background: none;
+    border: 1px solid var(--border);
+    border-radius: 6px;
+    color: var(--text);
+    font-family: 'DM Mono', monospace;
+    font-size: 12px;
+    padding: 4px 12px;
+    cursor: pointer;
+  }
+
+  /* PROGRESS BAR */
+  .progress-wrap {
+    height: 3px;
+    background: var(--border);
+    border-radius: 2px;
+    overflow: hidden;
+    margin-top: 8px;
+  }
+
+  .progress-bar {
+    height: 100%;
+    background: var(--green);
+    border-radius: 2px;
+    transition: width 0.6s cubic-bezier(0.34, 1.56, 0.64, 1);
+  }
+
+  /* FLASH ANIMATION */
+  @keyframes flash {
+    0% { opacity: 1; }
+    50% { opacity: 0.3; }
+    100% { opacity: 1; }
+  }
+
+  .flashing { animation: flash 0.3s ease; }
+
+  /* MODAL / HISTORY */
+  .overlay {
+    display: none;
+    position: fixed;
+    inset: 0;
+    background: rgba(0,0,0,0.85);
+    z-index: 100;
+    align-items: flex-end;
+  }
+
+  .overlay.open { display: flex; }
+
+  .modal {
+    background: #1a1a1a;
+    border-radius: 20px 20px 0 0;
+    padding: 24px 20px 40px;
+    width: 100%;
+    max-height: 70dvh;
+    overflow-y: auto;
+  }
+
+  .modal-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 20px;
+  }
+
+  .modal-title {
+    font-family: 'Syne', sans-serif;
+    font-weight: 700;
+    font-size: 18px;
+  }
+
+  .modal-close {
+    background: var(--border);
+    border: none;
+    border-radius: 50%;
+    width: 32px;
+    height: 32px;
+    color: var(--text);
+    font-size: 16px;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+
+  .history-list {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+  }
+
+  .history-item {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 12px 14px;
+    background: var(--surface);
+    border-radius: 10px;
+    border: 1px solid var(--border);
+    font-size: 13px;
+  }
+
+  .history-item .del-btn {
+    background: none;
+    border: none;
+    color: var(--muted);
+    font-size: 16px;
+    cursor: pointer;
+    padding: 4px;
+  }
+
+  .empty-state {
+    text-align: center;
+    color: var(--muted);
+    font-size: 13px;
+    padding: 32px 0;
+  }
+
+  .history-trigger {
+    background: none;
+    border: none;
+    color: var(--muted);
+    font-family: 'DM Mono', monospace;
+    font-size: 11px;
+    cursor: pointer;
+    text-align: center;
+    width: 100%;
+    padding: 4px;
+    letter-spacing: 1px;
+    text-transform: uppercase;
+    text-decoration: underline;
+    text-underline-offset: 3px;
+  }
+
+  /* ADD PAST DATE */
+  .add-past {
+    display: flex;
+    gap: 8px;
+    margin-bottom: 20px;
+    align-items: center;
+  }
+
+  .date-input {
+    flex: 1;
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    padding: 11px 14px;
+    color: var(--text);
+    font-family: 'DM Mono', monospace;
+    font-size: 13px;
+    -webkit-appearance: none;
+    appearance: none;
+    color-scheme: dark;
+  }
+
+  .date-input:focus {
+    outline: none;
+    border-color: var(--green-dim);
+  }
+
+  .add-past-btn {
+    background: var(--green);
+    color: #0a0a0a;
+    border: none;
+    border-radius: 10px;
+    padding: 11px 18px;
+    font-family: 'Syne', sans-serif;
+    font-weight: 700;
+    font-size: 14px;
+    cursor: pointer;
+    white-space: nowrap;
+  }
+
+  .add-past-btn:active { opacity: 0.8; }
+
+  .count-badge {
+    background: var(--green-dim);
+    color: var(--green);
+    border-radius: 5px;
+    font-size: 10px;
+    padding: 2px 7px;
+    margin-left: 6px;
+    vertical-align: middle;
+  }
+
+  .history-date-group {
+    font-size: 10px;
+    letter-spacing: 1.5px;
+    text-transform: uppercase;
+    color: var(--muted);
+    margin: 14px 0 6px;
+  }
+
+  .history-date-group:first-child { margin-top: 0; }
+</style>
+</head>
+<body>
+
+<div class="app">
+  <!-- HEADER -->
+  <div class="header">
+    <div>
+      <div class="header-title">TRÄNING</div>
+      <div class="header-year">2026 · MÅL: 3×/VECKA</div>
+    </div>
+    <div class="week-badge">
+      <div class="week-label">Vecka</div>
+      <div class="week-num" id="weekNum">—</div>
+    </div>
+  </div>
+
+  <!-- STATUS HERO -->
+  <div class="status-card neutral" id="statusCard">
+    <div class="status-label">Snitt just nu</div>
+    <div class="status-main" id="statusMain">—</div>
+    <div class="status-sub" id="statusSub">Inga pass loggade än</div>
+    <div class="progress-wrap">
+      <div class="progress-bar" id="progressBar" style="width:0%"></div>
+    </div>
+  </div>
+
+  <!-- STATS GRID -->
+  <div class="stats-grid">
+    <div class="stat-box">
+      <div class="stat-box-label">Denna vecka</div>
+      <div class="stat-box-value" id="thisWeek">0</div>
+      <div class="stat-box-sub">av 3 pass</div>
+    </div>
+    <div class="stat-box">
+      <div class="stat-box-label">Totalt 2026</div>
+      <div class="stat-box-value" id="totalYear">0</div>
+      <div class="stat-box-sub" id="totalSub">pass</div>
+    </div>
+    <div class="stat-box">
+      <div class="stat-box-label">Mot målet</div>
+      <div class="stat-box-value" id="delta">±0</div>
+      <div class="stat-box-sub" id="deltaSub">pass +/−</div>
+    </div>
+    <div class="stat-box">
+      <div class="stat-box-label">Bästa vecka</div>
+      <div class="stat-box-value" id="bestWeek">0</div>
+      <div class="stat-box-sub">pass på en vecka</div>
+    </div>
+  </div>
+
+  <!-- WEEK VIEW -->
+  <div class="week-section">
+    <div class="week-section-label">Denna vecka</div>
+    <div class="week-dots" id="weekDots"></div>
+  </div>
+
+  <!-- LOG BUTTON -->
+  <button class="log-btn" id="logBtn" onclick="logWorkout()">
+    <div class="btn-inner">
+      <span class="btn-icon">＋</span>
+      <span>Logga pass</span>
+    </div>
+  </button>
+
+  <!-- UNDO BAR -->
+  <div class="undo-bar" id="undoBar">
+    <span>✓ Pass loggat</span>
+    <button class="undo-btn" onclick="undoLast()">Ångra</button>
+  </div>
+
+  <!-- HISTORY LINK -->
+  <button class="history-trigger" onclick="openHistory()">Visa alla pass →</button>
+</div>
+
+<!-- HISTORY MODAL -->
+<div class="overlay" id="overlay" onclick="closeHistory(event)">
+  <div class="modal">
+    <div class="modal-header">
+      <div class="modal-title">Alla pass 2026</div>
+      <button class="modal-close" onclick="closeHistoryBtn()">✕</button>
+    </div>
+    <div class="add-past">
+      <input type="date" class="date-input" id="pastDateInput" min="2026-01-01">
+      <button class="add-past-btn" onclick="addPastWorkout()">＋ Lägg till</button>
+    </div>
+    <div class="history-list" id="historyList"></div>
+  </div>
+</div>
+
+<script>
+// ─── STORAGE ──────────────────────────────────────────────────────────────────
+const KEY = 'workouts_2026_v1';
+
+function load() {
+  try { return JSON.parse(localStorage.getItem(KEY)) || []; }
+  catch { return []; }
+}
+
+function save(data) {
+  localStorage.setItem(KEY, JSON.stringify(data));
+}
+
+// ─── DATE HELPERS ─────────────────────────────────────────────────────────────
+function today() {
+  const d = new Date();
+  return `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}-${String(d.getDate()).padStart(2,'0')}`;
+}
+
+function getWeekNumber(dateStr) {
+  const d = new Date(dateStr + 'T12:00:00');
+  const jan4 = new Date(d.getFullYear(), 0, 4);
+  const startOfWeek1 = new Date(jan4);
+  startOfWeek1.setDate(jan4.getDate() - ((jan4.getDay() + 6) % 7));
+  const diff = d - startOfWeek1;
+  return Math.floor(diff / (7 * 86400000)) + 1;
+}
+
+function getCurrentWeekDates() {
+  const now = new Date();
+  const dow = (now.getDay() + 6) % 7; // Mon=0
+  const days = [];
+  for (let i = 0; i < 7; i++) {
+    const d = new Date(now);
+    d.setDate(now.getDate() - dow + i);
+    const str = `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}-${String(d.getDate()).padStart(2,'0')}`;
+    days.push(str);
+  }
+  return days;
+}
+
+function weeksElapsedIn2026() {
+  const start = new Date('2026-01-01T00:00:00');
+  const now = new Date();
+  const diff = (now - start) / (7 * 86400000);
+  return Math.max(diff, 1/7);
+}
+
+function formatDate(dateStr) {
+  const d = new Date(dateStr + 'T12:00:00');
+  const days = ['Sön','Mån','Tis','Ons','Tor','Fre','Lör'];
+  const months = ['jan','feb','mar','apr','maj','jun','jul','aug','sep','okt','nov','dec'];
+  return `${days[d.getDay()]} ${d.getDate()} ${months[d.getMonth()]}`;
+}
+
+// ─── STATS ────────────────────────────────────────────────────────────────────
+function computeStats(workouts) {
+  const weekSet = {};
+  workouts.forEach(w => {
+    const wk = getWeekNumber(w);
+    weekSet[wk] = (weekSet[wk] || 0) + 1;
+  });
+
+  const weekDates = getCurrentWeekDates();
+  const thisWeekCount = workouts.filter(w => weekDates.includes(w)).length;
+
+  const weeksElapsed = weeksElapsedIn2026();
+  const target = weeksElapsed * 3;
+  const total = workouts.length;
+  const avgPerWeek = total / weeksElapsed;
+  const delta = Math.round(total - target);
+
+  const bestWeek = Object.values(weekSet).length ? Math.max(...Object.values(weekSet)) : 0;
+
+  return { avgPerWeek, total, delta, thisWeekCount, bestWeek, weekDates };
+}
+
+// ─── RENDER ───────────────────────────────────────────────────────────────────
+function render() {
+  const workouts = load();
+  const { avgPerWeek, total, delta, thisWeekCount, bestWeek, weekDates } = computeStats(workouts);
+
+  // Week number
+  document.getElementById('weekNum').textContent = getWeekNumber(today());
+
+  // Status hero
+  const card = document.getElementById('statusCard');
+  const main = document.getElementById('statusMain');
+  const sub = document.getElementById('statusSub');
+  const bar = document.getElementById('progressBar');
+
+  const pct = Math.min((avgPerWeek / 3) * 100, 100);
+  bar.style.width = pct + '%';
+
+  if (total === 0) {
+    card.className = 'status-card neutral';
+    main.textContent = '—';
+    sub.textContent = 'Inga pass loggade än';
+  } else {
+    const rounded = avgPerWeek.toFixed(1);
+    main.textContent = rounded + '/v';
+    if (avgPerWeek >= 3) {
+      card.className = 'status-card positive';
+      sub.textContent = `Du är ÖVER målet 💪`;
+    } else {
+      card.className = 'status-card negative';
+      sub.textContent = `Du är UNDER målet – dra på!`;
+    }
+  }
+
+  // Stats grid
+  document.getElementById('thisWeek').textContent = thisWeekCount;
+  document.getElementById('totalYear').textContent = total;
+  document.getElementById('totalSub').textContent = total === 1 ? 'pass' : 'pass totalt';
+
+  const deltaEl = document.getElementById('delta');
+  const deltaSub = document.getElementById('deltaSub');
+  if (delta > 0) {
+    deltaEl.textContent = '+' + delta;
+    deltaEl.style.color = 'var(--green)';
+    deltaSub.textContent = 'pass före schema';
+  } else if (delta < 0) {
+    deltaEl.textContent = delta;
+    deltaEl.style.color = 'var(--red)';
+    deltaSub.textContent = 'pass efter schema';
+  } else {
+    deltaEl.textContent = '±0';
+    deltaEl.style.color = 'var(--text)';
+    deltaSub.textContent = 'exakt i fas';
+  }
+
+  document.getElementById('bestWeek').textContent = bestWeek;
+
+  // Week dots
+  const labels = ['Mån','Tis','Ons','Tor','Fre','Lör','Sön'];
+  const todayStr = today();
+  const container = document.getElementById('weekDots');
+  container.innerHTML = '';
+
+  weekDates.forEach((dateStr, i) => {
+    const col = document.createElement('div');
+    col.className = 'day-col';
+
+    const lbl = document.createElement('div');
+    lbl.className = 'day-label';
+    lbl.textContent = labels[i];
+
+    const dot = document.createElement('div');
+    dot.className = 'day-dot';
+    if (workouts.includes(dateStr)) dot.classList.add('done');
+    if (dateStr === todayStr) dot.classList.add('today');
+
+    col.appendChild(lbl);
+    col.appendChild(dot);
+    container.appendChild(col);
+  });
+}
+
+// ─── LOG / UNDO ───────────────────────────────────────────────────────────────
+let undoTimer = null;
+
+function logWorkout() {
+  const workouts = load();
+  const t = today();
+
+  // Allow multiple per day — just push
+  workouts.push(t);
+  save(workouts);
+  render();
+
+  // Show undo
+  const bar = document.getElementById('undoBar');
+  bar.classList.add('visible');
+  clearTimeout(undoTimer);
+  undoTimer = setTimeout(() => bar.classList.remove('visible'), 4000);
+
+  // Flash btn
+  const btn = document.getElementById('logBtn');
+  btn.classList.add('flashing');
+  setTimeout(() => btn.classList.remove('flashing'), 300);
+}
+
+function undoLast() {
+  const workouts = load();
+  workouts.pop();
+  save(workouts);
+  render();
+  document.getElementById('undoBar').classList.remove('visible');
+  clearTimeout(undoTimer);
+}
+
+// ─── HISTORY ─────────────────────────────────────────────────────────────────
+function addPastWorkout() {
+  const input = document.getElementById('pastDateInput');
+  const dateStr = input.value;
+  if (!dateStr) return;
+  if (!dateStr.startsWith('2026')) { alert('Välj ett datum under 2026.'); return; }
+  if (dateStr > today()) { alert('Kan inte logga framtida pass!'); return; }
+  const workouts = load();
+  workouts.push(dateStr);
+  workouts.sort();
+  save(workouts);
+  render();
+  openHistory();
+}
+
+function openHistory() {
+  const workouts = load();
+  const list = document.getElementById('historyList');
+  list.innerHTML = '';
+
+  // Set date input default
+  const input = document.getElementById('pastDateInput');
+  if (!input.value) input.value = today();
+  input.max = today();
+
+  if (workouts.length === 0) {
+    list.innerHTML = '<div class="empty-state">Inga pass loggade än 🥲<br><br>Välj ett datum ovan och tryck ＋ för att fylla i gamla pass!</div>';
+  } else {
+    const byDate = {};
+    workouts.forEach(w => { byDate[w] = (byDate[w] || 0) + 1; });
+    const months = ['Januari','Februari','Mars','April','Maj','Juni','Juli','Augusti','September','Oktober','November','December'];
+    const uniqueDates = [...new Set(workouts)].sort().reverse();
+    let lastMonth = null;
+
+    uniqueDates.forEach(dateStr => {
+      const d = new Date(dateStr + 'T12:00:00');
+      const monthLabel = months[d.getMonth()];
+      if (monthLabel !== lastMonth) {
+        const grp = document.createElement('div');
+        grp.className = 'history-date-group';
+        grp.textContent = monthLabel;
+        list.appendChild(grp);
+        lastMonth = monthLabel;
+      }
+      const n = byDate[dateStr];
+      const item = document.createElement('div');
+      item.className = 'history-item';
+      item.innerHTML = `
+        <span>${formatDate(dateStr)}${n > 1 ? `<span class="count-badge">${n} pass</span>` : ''}</span>
+        <button class="del-btn" onclick="deleteOneWorkout('${dateStr}')">✕</button>
+      `;
+      list.appendChild(item);
+    });
+  }
+
+  document.getElementById('overlay').classList.add('open');
+}
+
+function deleteOneWorkout(dateStr) {
+  let workouts = load();
+  const idx = workouts.lastIndexOf(dateStr);
+  if (idx !== -1) workouts.splice(idx, 1);
+  save(workouts);
+  render();
+  openHistory();
+}
+
+function closeHistory(e) {
+  if (e.target === document.getElementById('overlay')) {
+    document.getElementById('overlay').classList.remove('open');
+  }
+}
+
+function closeHistoryBtn() {
+  document.getElementById('overlay').classList.remove('open');
+}
+
+// ─── INIT ─────────────────────────────────────────────────────────────────────
+render();
+</script>
+</body>
+</html>
